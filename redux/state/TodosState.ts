@@ -1,8 +1,5 @@
-import { Todos_Select_Column } from '../../graphql/generated/graphql';
-import { Todo } from '../../model/Todo';
+import { DeletableTodo } from '../../model/DeletableTodo';
 
 export interface TodosState {
-  myTodos?: Todo[];
-  // | null
-  // | undefined
+  myTodos?: Record<string, DeletableTodo> | undefined;
 }

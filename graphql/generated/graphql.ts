@@ -807,6 +807,13 @@ export type CreatePersonalTodoMutationVariables = Exact<{
 
 export type CreatePersonalTodoMutation = { __typename?: 'mutation_root', insert_todos_one?: { __typename?: 'todos', created_at: any, id: number, is_completed: boolean, is_public: boolean, title: string, user_id: string, user: { __typename?: 'users', created_at: any, email: string, id: string, last_seen: any, name: string } } | null };
 
+export type DeleteTodoMutationVariables = Exact<{
+  id?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type DeleteTodoMutation = { __typename?: 'mutation_root', delete_todos_by_pk?: { __typename?: 'todos', id: number } | null };
+
 export type UpdateTodoMutationVariables = Exact<{
   id: Scalars['Int'];
   is_completed: Scalars['Boolean'];
@@ -843,6 +850,13 @@ export const CreatePersonalTodoDocument = `
   }
 }
     `;
+export const DeleteTodoDocument = `
+    mutation DeleteTodo($id: Int = 10) {
+  delete_todos_by_pk(id: $id) {
+    id
+  }
+}
+    `;
 export const UpdateTodoDocument = `
     mutation UpdateTodo($id: Int!, $is_completed: Boolean!) {
   update_todos(where: {id: {_eq: $id}}, _set: {is_completed: $is_completed}) {
@@ -873,6 +887,9 @@ const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
     CreatePersonalTodo: build.mutation<CreatePersonalTodoMutation, CreatePersonalTodoMutationVariables | void>({
       query: (variables) => ({ document: CreatePersonalTodoDocument, variables })
+    }),
+    DeleteTodo: build.mutation<DeleteTodoMutation, DeleteTodoMutationVariables | void>({
+      query: (variables) => ({ document: DeleteTodoDocument, variables })
     }),
     UpdateTodo: build.mutation<UpdateTodoMutation, UpdateTodoMutationVariables>({
       query: (variables) => ({ document: UpdateTodoDocument, variables })

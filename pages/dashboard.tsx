@@ -1,24 +1,33 @@
+import { XMarkIcon } from '@heroicons/react/24/outline';
 import { Form, Formik } from 'formik';
+import values from 'lodash.values';
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import * as Yup from 'yup';
 
+import Spinner from '../components/common/Spinner';
 import { api } from '../graphql/generated/graphql';
-import { Todo } from '../model/Todo';
+import { DeletableTodo } from '../model/DeletableTodo';
 import { selectUser } from '../redux/slices/authSlice';
-import { selectMyTodos } from '../redux/slices/todosSlice';
+import { removeTodo, selectMyTodos } from '../redux/slices/todosSlice';
 
 const Dashboard = () => {
+  const dispatch = useDispatch();
   const todos = useSelector(selectMyTodos);
-  const user = useSelector(selectUser);
   const [getMyTodos, getMyTodosResult] =
     api.endpoints.GetMyTodos.useLazyQuery();
   const [createPersonalTodo, createPersonalTodoResult] =
     api.endpoints.CreatePersonalTodo.useMutation();
   const [updateTodo, updateTodoResult] = api.endpoints.UpdateTodo.useMutation();
+  const [deleteTodo, deleteTodoResult] = api.endpoints.DeleteTodo.useMutation();
 
-  const handleCheckTodo = (todo: Todo) => () => {
+  const handleCheckTodo = (todo: DeletableTodo) => () => {
     updateTodo({ id: todo.id, is_completed: !todo.is_completed });
+  };
+
+  const handleDeleteTodo = (todo: DeletableTodo) => () => {
+    deleteTodo({ id: todo.id });
   };
 
   useEffect(() => {
@@ -26,23 +35,17 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (getMyTodosResult.isSuccess) {
-      console.log('oi');
-    } else if (getMyTodosResult.isError) {
-      console.log('er');
+    if (deleteTodoResult.isSuccess) {
+      dispatch(removeTodo(deleteTodoResult.originalArgs?.id as number));
     }
-  }, [getMyTodosResult.isError, getMyTodosResult.isSuccess]);
-  useEffect(() => {
-    if (createPersonalTodoResult.isSuccess) {
-    } else if (createPersonalTodoResult.isError) {
-      console.log('er');
-    }
-  }, [createPersonalTodoResult.isError, createPersonalTodoResult.isSuccess]);
+  }, [deleteTodoResult.isSuccess]);
   return (
     <div className="mx-auto relative w-1/2 px-2 sm:px-6 lg:px-8">
       <section className="flex flex-col px-4 py-4">
-        <div className="text-gray-700 font-normal text-lg">Personal Todos</div>
-        <div className="w-full flex flex-col px-4 py-4 shadow-xl">
+        <div className="text-gray-800 font-normal text-2xl text-center">
+          Personal Todos
+        </div>
+        <div className="w-full flex flex-col px-6 py-6 shadow-xl">
           <Formik
             initialValues={{ title: '' }}
             validationSchema={Yup.object({
@@ -51,7 +54,7 @@ const Dashboard = () => {
             onSubmit={async (values, { setSubmitting, resetForm }) => {
               setSubmitting(true);
               try {
-                const res = await createPersonalTodo({
+                await createPersonalTodo({
                   title: values.title
                 });
                 resetForm();
@@ -78,8 +81,8 @@ const Dashboard = () => {
             )}
           </Formik>
           <ul>
-            {todos?.map((item) => (
-              <li className="flex items-center" key={item.id}>
+            {values(todos)?.map((item) => (
+              <li className="flex items-center w=full my-2" key={item.id}>
                 <div className="flex items-center">
                   <input
                     checked={item.is_completed}
@@ -90,7 +93,22 @@ const Dashboard = () => {
                   />
                 </div>
 
-                <div className="">{item.title}</div>
+                <div
+                  className={`${item.is_completed ? 'line-through' : ''} ml-1`}
+                >
+                  {item.title}
+                </div>
+                <div className="ml-auto">
+                  {item.deletion_status === 'pending' ? (
+                    <Spinner color="black" />
+                  ) : (
+                    <XMarkIcon
+                      onClick={handleDeleteTodo(item)}
+                      className="block h-6 w-6 text-red-500"
+                      aria-hidden="true"
+                    />
+                  )}
+                </div>
               </li>
             ))}
           </ul>

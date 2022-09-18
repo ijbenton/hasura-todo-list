@@ -1,6 +1,6 @@
-export type Todo = {
+export type DeletableTodo = {
   __typename?: 'todos' | undefined;
-  created_at: any;
+  created_at?: any;
   id: number;
   is_completed: boolean;
   is_public: boolean;
@@ -12,4 +12,5 @@ export type Todo = {
     last_seen: string;
     name: string;
   };
+  deletion_status: undefined | 'pending' | 'failed';
 };
