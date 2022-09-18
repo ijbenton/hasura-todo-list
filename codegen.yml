@@ -1,0 +1,13 @@
+overwrite: true
+schema:
+  https://superb-lynx-33.hasura.app/v1/graphql:
+    headers:
+      'x-hasura-admin-secret': 7niz65pVZwTZg38NLNuQSGBJ58zMqj7X4t5Kknwvy46WG5RHoVmCzoXMoZ7aykNF
+documents: './graphql/**/*.graphql'
+generates:
+  graphql/generated/graphql.ts:
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - typescript-rtk-query:
+          importBaseApiFrom: '../api'

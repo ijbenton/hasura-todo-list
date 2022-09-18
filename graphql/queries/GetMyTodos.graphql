@@ -1,0 +1,16 @@
+query GetMyTodos {
+  todos {
+    title
+    is_completed
+    is_public
+    id
+    created_at
+    user {
+      created_at
+      email
+      id
+      last_seen
+      name
+    }
+  }
+}

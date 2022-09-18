@@ -1,0 +1,20 @@
+mutation CreatePersonalTodo($title: String = "") {
+  insert_todos_one(
+    object: { title: $title, is_public: false }
+    on_conflict: { constraint: todos_pkey }
+  ) {
+    created_at
+    id
+    is_completed
+    is_public
+    title
+    user_id
+    user {
+      created_at
+      email
+      id
+      last_seen
+      name
+    }
+  }
+}
